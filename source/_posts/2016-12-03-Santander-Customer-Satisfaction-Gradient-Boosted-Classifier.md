@@ -1,7 +1,12 @@
 ---
 title: Santander Customer Satisfaction - Gradient Boosted Classifier
 date: 2016-12-03 21:43:01
-tags: Python; Data Analysis; Kaggle
+tags:
+  - Python
+  - Data Analysis
+  - Kaggle
+categories:
+  - Data Analysis
 ---
 
 
@@ -9,7 +14,7 @@ I started this blog to show off some of the things I'm doing to learn more about
 
 First off, I made all the required imports and then adapted a function from the previous website to help check out the performance of the model.
 
-```python
+{% codeblock lang:python %}
 def modelFit(alg, dtrain, predictors, target, performCV = True, printFeatReport = True, cv_folds = 5):
 
 #alg is the model to fit, dtrain is the training dataframe, predictors is a string or list of
@@ -40,13 +45,13 @@ if printFeatReport:
     feat_imp = pd.Series(alg.feature_importances_, predictors).sort_values(ascending = False)
     feat_imp.plot(kind = 'bar', title = 'Feature Importances')
     plt.ylabel('Feature Importance Score')
-```
+{% endcodeblock %}
 
 I haven't been working with it long, but there are already a few tweeks that I'd like to make. Mainly, to list out the top performing features so I can start thinking about cutting down on the features I'm training with.
 
 I import the data, and do some very minor cleaning. I first drop the columns that are uniform, i.e. have zero variance, then I drop columns that are identical. Then, there is only one column of the data that has farily obvious outliers and several invalid entries. Discounting the outliers and NaN's, the column has so little variance that instead of working with it futher, I didn't use it to train the model. All told, 63 columns were removed from the training and testing data.
 
-```python
+{% codeblock lang:python %}
 train = pd.read_csv('Data/Santander/train.csv')
 test = pd.read_csv('Data/Santander/test.csv')
 
@@ -78,19 +83,19 @@ for i in train.columns.values:
         colsWithNAN.append(i)
 train.drop(colsWithNAN, axis = 1,  inplace = True)
 test.drop(colsWithNAN, axis = 1, inplace = True)
-```
+{% endcodeblock %}
 
 Next, I trained the model with all of the default values to get a baseline for the models performance.
 
-```python
+{% codeblock lang:python %}
 pred = [i for i in train.columns if i not in ['ID', 'TARGET']]
 gbm0 = GradientBoostingClassifier(random_state = 10)
 modelFit(gbm0, train, pred, 'TARGET', printFeatReport = False)
-```
+{% endcodeblock %}
 
 The results it gave me were decent for a first run. The AUC score was around .85 and it cross validated at .8352\. Next, I ran a few different grid searches and refined the model.
 
-```python
+{% codeblock lang:python %}
 paramTest1 = {'n_estimators' : range(80,141,10)}
 gSearch1 = GridSearchCV(estimator = GradientBoostingClassifier(learning_rate = 0.1,\
                                                                min_samples_split = 500,\
@@ -112,11 +117,11 @@ gSearch1.grid_scores_, gSearch1.best_params_, gSearch1.best_score_
   mean: 0.83698, std: 0.00809, params: {'n_estimators': 140}],
  {'n_estimators': 100},
  0.83792968856907224)
-```
+{% endcodeblock %}
 
 First I checked the number of estimators, and as you can see from above, it found that 100 was the best fit.
 
-```python
+{% codeblock lang:python %}
 paramTest2 = {'max_depth' : range(5,16,2), 'min_samples_split' : range(200,1001, 200)}
 gSearch2 = GridSearchCV(estimator = GradientBoostingClassifier(learning_rate = 0.1,\
                                                                n_estimators = 100,\
@@ -160,11 +165,11 @@ gSearch2.grid_scores_, gSearch2.best_params_, gSearch2.best_score_
   mean: 0.83583, std: 0.00880, params: {'min_samples_split': 1000, 'max_depth': 15}],
  {'max_depth': 9, 'min_samples_split': 400},
  0.83759736130706453)
-```
+{% endcodeblock %}
 
 Next, I searched for the `max_depth` and `min_samples_split` parameters. As you can see, the best values were 9 and 400 respectively.
 
-```python
+{% codeblock lang:python %}
 paramTest3 = {'min_samples_leaf' : range(30,71, 10)}
 gSearch3 = GridSearchCV(estimator = GradientBoostingClassifier(learning_rate = 0.1,\
                                                                n_estimators = 100,\
@@ -227,7 +232,7 @@ gSearch5.grid_scores_, gSearch5.best_params_, gSearch5.best_score_
   mean: 0.83663, std: 0.00895, params: {'subsample': 0.9}],
  {'subsample': 0.8},
  0.83759736130706453)
-```
+{% endcodeblock %}
 
 The final three grid searches I ran were for `min_samples_leaf`, `max_features`, and `subsample`. After tuning these 6 parameters, I got the cross validation score to .8379 or an increase of .002\. The following is the final feature importance chart.<br>
 ![GBC Final Feature Importance Chart](/images/GBC-Final-Feat-Importance.png)
