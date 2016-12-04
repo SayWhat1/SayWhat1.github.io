@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Derek Elliott Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Derek Elliott Blog">
+<meta property="og:url" content="http://derekelliott.me/index.html">
+<meta property="og:site_name" content="Derek Elliott Blog">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Derek Elliott Blog">
+  
+    <link rel="alternate" href="/atom.xml" title="Derek Elliott Blog" type="application/atom+xml">
+  
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" integrity="sha384-XdYbMnZ/QjLh6iI4ogqCTaIjrFk87ip+ekIjefZch0Y+PvJ8CDYtEs1ipDmPorQ+" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="/css/styles.css">
+  
+
+</head>
+
+<body>
+  <nav class="navbar navbar-inverse">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#main-menu-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="main-menu-navbar">
+      <ul class="nav navbar-nav">
+        
+          <li><a class="active"
+                 href="/index.html">Home</a></li>
+        
+          <li><a class=""
+                 href="/archives/">Archives</a></li>
+        
+      </ul>
+
+      <!--
+      <ul class="nav navbar-nav navbar-right">
+        
+          <li><a href="/atom.xml" title="RSS Feed"><i class="fa fa-rss"></i></a></li>
+        
+      </ul>
+      -->
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+  <div class="container">
+    <div class="blog-header">
+  <h1 class="blog-title">Derek Elliott Blog</h1>
+  
+</div>
+
+    <div class="row">
+        <div class="col-sm-8 blog-main">
+          
+  
+    <article id="post-Santander-Customer-Satisfaction-Random-Forest-Classifier" class="article article-type-post" itemscope itemprop="blogPost">
+
+  <header class="article-header">
+    
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/12/03/Santander-Customer-Satisfaction-Random-Forest-Classifier/">Santander Customer Satisfaction - Random Forest Classifier</a>
+    </h1>
+  
+
+
+  </header>
+
+  <div class="article-meta">
+    <div class="article-datetime">
+  <a href="/2016/12/03/Santander-Customer-Satisfaction-Random-Forest-Classifier/" class="article-date"><time datetime="2016-12-04T02:43:30.000Z" itemprop="datePublished">2016-12-03</time></a>
+</div>
+
+    
+    
+
+  </div>
+  <div class="article-inner">
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>This is the second in a series of post detailing the analysis I’ve performed on the <a href="https://www.kaggle.com/c/santander-customer-satisfaction" target="_blank" rel="external">Santander Customer Satisfaction</a> competition on Kaggle.</p>
+<p>This is the first algorithm that I tried to tune the parameters on my own.  I couldn’t find a good guide, so I did my best based on the guide I used for the gradient boosted algorithm.  I used the same helper function, modified slightly to fit the algorithm.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">modelFit</span><span class="params">(alg, dtrain, predictors, target, performCV = True, printFeatReport = True, cv_folds = <span class="number">5</span>)</span>:</span></div><div class="line"></div><div class="line">  alg.fit(dtrain[predictors], dtrain[target])</div><div class="line"></div><div class="line">  dtrain_predictions = alg.predict(dtrain[predictors])</div><div class="line">  dtrain_predprob = alg.predict_proba(dtrain[predictors])[:,<span class="number">1</span>]</div><div class="line"></div><div class="line">  <span class="keyword">if</span> performCV:</div><div class="line">      cv_score = cross_validation.cross_val_score(alg, dtrain[predictors], dtrain[target], \</div><div class="line">                                                 cv = cv_folds, scoring = <span class="string">'roc_auc'</span> )</div><div class="line"></div><div class="line">  print(<span class="string">'\nModel Report'</span>)</div><div class="line">  print(<span class="string">'Accuracy : &#123;:.4g&#125;'</span>.format(metrics.accuracy_score(dtrain[target].values, dtrain_predictions)))</div><div class="line">  print(<span class="string">'AUC Score (Train): &#123;:f&#125;'</span>.format(metrics.roc_auc_score(dtrain[target], dtrain_predprob)))</div><div class="line"></div><div class="line">  <span class="keyword">if</span> performCV:</div><div class="line">      print(<span class="string">'CV Score: Mean - &#123;:.7g&#125; | Std - &#123;:.7g&#125; | Min - &#123;:.7g&#125; | Max - &#123;:.7g&#125;'</span>.format(np.mean(cv_score),\</div><div class="line">                                                                                          np.std(cv_score),\</div><div class="line">                                                                                          np.min(cv_score),\</div><div class="line">                                                                                          np.max(cv_score)))</div><div class="line"></div><div class="line">  <span class="keyword">if</span> printFeatReport:</div><div class="line">      feat_imp = pd.Series(alg.feature_importances_, predictors).sort_values(ascending = <span class="keyword">False</span>)</div><div class="line">      feat_imp.plot(kind = <span class="string">'bar'</span>, title = <span class="string">'Feature Importances'</span>)</div><div class="line">      plt.ylabel(<span class="string">'Feature Importance Score'</span>)</div></pre></td></tr></table></figure>
+<p>Along with what I mentioned last time, I think I want to modify this to automatically remove features that don’t contribute to the model.  I could do it iteratively and stop when the cross validation score starts to drop.  These models already take a few minutes each to run, and when I start to cross validate, it could take 10 or 15 minutes to train.  In the grand scheme of things, that’s not that long considering what it could take with more advanced models, but if I start trying to ensemble I’d rather not have to wait overnight to check my results.  </p>
+<p>I use the exact same code to import and clean the data to get it ready for training the model, but I’ll include it below for the sake of completeness.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line">train = pd.read_csv(<span class="string">'Data/Santander/train.csv'</span>)</div><div class="line">test = pd.read_csv(<span class="string">'Data/Santander/test.csv'</span>)</div><div class="line"></div><div class="line">dropCols = []</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> train.columns.values:</div><div class="line">    <span class="keyword">if</span> len(train[i].unique()) == <span class="number">1</span>:</div><div class="line">        dropCols.append(i)</div><div class="line">print(<span class="string">'Dropping &#123;&#125; columns due to non-unique entries'</span>.format(len(dropCols)))</div><div class="line">train.drop(dropCols, axis = <span class="number">1</span>,  inplace = <span class="keyword">True</span>)</div><div class="line">test.drop(dropCols, axis = <span class="number">1</span>, inplace = <span class="keyword">True</span>)</div><div class="line"></div><div class="line">dropCols = []</div><div class="line">c = train.columns</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(len(c)<span class="number">-1</span>):</div><div class="line">    v = train[c[i]].values</div><div class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> range(i+<span class="number">1</span>,len(c)):</div><div class="line">        <span class="keyword">if</span> np.array_equal(v,train[c[j]].values):</div><div class="line">            dropCols.append(c[j])</div><div class="line">print(<span class="string">'Dropping &#123;&#125; columns due to duplicate columns'</span>.format(len(dropCols)))</div><div class="line">train.drop(dropCols, axis = <span class="number">1</span>,  inplace = <span class="keyword">True</span>)</div><div class="line">test.drop(dropCols, axis = <span class="number">1</span>, inplace = <span class="keyword">True</span>)</div><div class="line"></div><div class="line">train.loc[train.var3 &lt; <span class="number">-10000</span>, <span class="string">'var3'</span>] = np.nan</div><div class="line">test.loc[test.var3 &lt; <span class="number">-10000</span>, <span class="string">'var3'</span>] = np.nan</div><div class="line"></div><div class="line">colsWithNAN = []</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> train.columns.values:</div><div class="line">    <span class="keyword">if</span> train[i].isnull().sum() &gt; <span class="number">0</span>:</div><div class="line">        colsWithNAN.append(i)</div><div class="line">train.drop(colsWithNAN, axis = <span class="number">1</span>,  inplace = <span class="keyword">True</span>)</div><div class="line">test.drop(colsWithNAN, axis = <span class="number">1</span>, inplace = <span class="keyword">True</span>)</div></pre></td></tr></table></figure>
+<p>I ran the model with the default parameter values and set the random state so that I could train multiple times and get consistent results.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">pred = [i <span class="keyword">for</span> i <span class="keyword">in</span> train.columns <span class="keyword">if</span> i <span class="keyword">not</span> <span class="keyword">in</span> [<span class="string">'ID'</span>, <span class="string">'TARGET'</span>]]</div><div class="line">rfc0 = RandomForestClassifier(n_estimators = <span class="number">500</span>, \</div><div class="line">                              random_state = <span class="number">42</span>)</div><div class="line">modelFit(rfc0, train, pred, <span class="string">'TARGET'</span>)</div></pre></td></tr></table></figure>
+<p>The default parameters resulted in a CV score of 0.7653.  Not bad for a first run, but there is a lot of room for improvement.</p>
+<p>Next, instead of running several different grid searches on each parameter, I ran a randomized search on all of the relevant parameters.  The function to report the findings of the random search was taken from the <a href="http://scikit-learn.org/stable/auto_examples/model_selection/randomized_search.html" target="_blank" rel="external">scikit-learn</a> example.  It was modified very slightly to fit my needs though.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">report</span><span class="params">(grid_scores, n_top=<span class="number">3</span>)</span>:</span></div><div class="line">    top_scores = sorted(grid_scores, key=itemgetter(<span class="number">1</span>), reverse=<span class="keyword">True</span>)[:n_top]</div><div class="line">    <span class="keyword">for</span> i, score <span class="keyword">in</span> enumerate(top_scores):</div><div class="line">        print(<span class="string">"\nModel with rank: &#123;0&#125;"</span>.format(i + <span class="number">1</span>))</div><div class="line">        print(<span class="string">"Mean validation score: &#123;0:.3f&#125; (std: &#123;1:.3f&#125;)"</span>.format(score.mean_validation_score,np.std(score.cv_validation_scores)))</div><div class="line">        print(<span class="string">"Parameters: &#123;0&#125;"</span>.format(score.parameters))</div><div class="line"></div><div class="line"></div><div class="line">param_dist = &#123;<span class="string">"max_depth"</span>: sp_randint(<span class="number">3</span>,<span class="number">10</span>),</div><div class="line">              <span class="string">"max_features"</span>: sp_randint(<span class="number">15</span>, <span class="number">29</span>),</div><div class="line">              <span class="string">"min_samples_split"</span>: sp_randint(<span class="number">400</span>, <span class="number">600</span>),</div><div class="line">              <span class="string">"min_samples_leaf"</span>: sp_randint(<span class="number">40</span>, <span class="number">60</span>),</div><div class="line">              <span class="string">"bootstrap"</span>: [<span class="keyword">True</span>, <span class="keyword">False</span>],</div><div class="line">              <span class="string">"criterion"</span>: [<span class="string">"gini"</span>, <span class="string">"entropy"</span>]&#125;</div><div class="line"></div><div class="line">random_search = RandomizedSearchCV(rfc0, param_distributions = param_dist, n_iter = <span class="number">20</span>)</div><div class="line">random_search.fit(train[pred], train[<span class="string">'TARGET'</span>])</div></pre></td></tr></table></figure>
+<p>After running it, it produced the following output:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">Model <span class="keyword">with</span> rank: <span class="number">1</span></div><div class="line">Mean validation score: <span class="number">0.960</span> (std: <span class="number">0.000</span>)</div><div class="line">Parameters: &#123;<span class="string">'bootstrap'</span>: <span class="keyword">True</span>, <span class="string">'min_samples_leaf'</span>: <span class="number">45</span>, <span class="string">'min_samples_split'</span>: <span class="number">404</span>, <span class="string">'criterion'</span>: <span class="string">'gini'</span>, <span class="string">'max_features'</span>: <span class="number">24</span>, <span class="string">'max_depth'</span>: <span class="number">8</span>&#125;</div><div class="line"></div><div class="line">Model <span class="keyword">with</span> rank: <span class="number">2</span></div><div class="line">Mean validation score: <span class="number">0.960</span> (std: <span class="number">0.000</span>)</div><div class="line">Parameters: &#123;<span class="string">'bootstrap'</span>: <span class="keyword">False</span>, <span class="string">'min_samples_leaf'</span>: <span class="number">45</span>, <span class="string">'min_samples_split'</span>: <span class="number">554</span>, <span class="string">'criterion'</span>: <span class="string">'gini'</span>, <span class="string">'max_features'</span>: <span class="number">24</span>, <span class="string">'max_depth'</span>: <span class="number">6</span>&#125;</div><div class="line"></div><div class="line">Model <span class="keyword">with</span> rank: <span class="number">3</span></div><div class="line">Mean validation score: <span class="number">0.960</span> (std: <span class="number">0.000</span>)</div><div class="line">Parameters: &#123;<span class="string">'bootstrap'</span>: <span class="keyword">True</span>, <span class="string">'min_samples_leaf'</span>: <span class="number">52</span>, <span class="string">'min_samples_split'</span>: <span class="number">597</span>, <span class="string">'criterion'</span>: <span class="string">'entropy'</span>, <span class="string">'max_features'</span>: <span class="number">28</span>, <span class="string">'max_depth'</span>: <span class="number">4</span>&#125;</div><div class="line">report(random_search.grid_scores_)</div></pre></td></tr></table></figure>
+<p>Then, I created a model with the best parameters and trained it to check out the cross validation score.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">rfc1 = RandomForestClassifier(n_estimators = <span class="number">500</span>, \</div><div class="line">                              max_depth = <span class="number">8</span>, \</div><div class="line">                              max_features = <span class="number">24</span>, \</div><div class="line">                              min_samples_split = <span class="number">404</span>, \</div><div class="line">                              min_samples_leaf = <span class="number">45</span>, \</div><div class="line">                              bootstrap = <span class="keyword">True</span>, \</div><div class="line">                              random_state = <span class="number">42</span>)</div><div class="line">modelFit(rfc1, train, pred, <span class="string">'TARGET'</span>)</div></pre></td></tr></table></figure>
+<p>This lead to a CV score of 0.8143.  That’s an increase of almost 0.05.  That’s a substantial improvement over the default parameters.  This is as far as I took this model, but in the future, I plan on following up with a few grid searches to further refine the parameters.  This is because of the way the RandomizedSearchCV searches for the best parameters.  It only selects a sample from the given range, so while what it found is an improvement, it might not have provided the optimal parameters.</p>
+<p>That’s it for this edition.  The next post will detail how I used the XGBoost model to fit the same data.  That’s all I already have prepared, so following that, it’s hard to say what will be coming.  I might go back and do the things I’ve already suggested with the models I already have, or I’ll start to ensemble.  I also need to put up something on the initial data exploration and do some visualizations.  So, stay tuned.  You can find the <a href="https://github.com/SayWhat1/Santander-Customer-Satisfaction-Kaggle/blob/master/Santander%20Customer%20Satisfaction%20RandomForest.ipynb" target="_blank" rel="external">notebook</a> on my GitHub, but as I work on this model and the others, it’s subject to change.</p>
+
+      
+    </div>
+
+    
+      
+
+    
+
+    <footer class="article-footer">
+      <a data-url="http://derekelliott.me/2016/12/03/Santander-Customer-Satisfaction-Random-Forest-Classifier/" data-id="ciwa1ntk5000208k7ktkg263s" class="article-share-link">
+        <i class="fa fa-share"></i> Share
+      </a>
+      
+      
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-Santander-Customer-Satisfaction-Gradient-Boosted-Classifier" class="article article-type-post" itemscope itemprop="blogPost">
+
+  <header class="article-header">
+    
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/12/03/Santander-Customer-Satisfaction-Gradient-Boosted-Classifier/">Santander Customer Satisfaction - Gradient Boosted Classifier</a>
+    </h1>
+  
+
+
+  </header>
+
+  <div class="article-meta">
+    <div class="article-datetime">
+  <a href="/2016/12/03/Santander-Customer-Satisfaction-Gradient-Boosted-Classifier/" class="article-date"><time datetime="2016-12-04T02:43:01.000Z" itemprop="datePublished">2016-12-03</time></a>
+</div>
+
+    
+    
+
+  </div>
+  <div class="article-inner">
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>I started this blog to show off some of the things I’m doing to learn more about data analysis. So, let’s get started. Recently, I’ve been looking at the <a href="https://www.kaggle.com/c/santander-customer-satisfaction" target="_blank" rel="external">Santander Customer Satisfaction</a> competition on Kaggle. I started off with gradient boosting classifier. I took a lot of inspiration from <a href="http://www.analyticsvidhya.com/" target="_blank" rel="external">Analytics Vidhya</a>. He has some really good guides on parameter tuning in both Python and R.</p>
+<p>First off, I made all the required imports and then adapted a function from the previous website to help check out the performance of the model.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">modelFit</span><span class="params">(alg, dtrain, predictors, target, performCV = True, printFeatReport = True, cv_folds = <span class="number">5</span>)</span>:</span></div><div class="line"></div><div class="line"><span class="comment">#alg is the model to fit, dtrain is the training dataframe, predictors is a string or list of</span></div><div class="line"><span class="comment">#strings of the column names to use as predictors, target a string of the column with the target</span></div><div class="line"><span class="comment">#performCV will crossvalidate the model, printFeatImport will print a graph showing the important</span></div><div class="line"><span class="comment">#features, and cv_folds is the number of folds to use in cross validation.'''</span></div><div class="line"></div><div class="line">alg.fit(dtrain[predictors], dtrain[target])</div><div class="line"></div><div class="line">dtrain_predictions = alg.predict(dtrain[predictors])</div><div class="line">dtrain_predprob = alg.predict_proba(dtrain[predictors])[:,<span class="number">1</span>]</div><div class="line"></div><div class="line"><span class="keyword">if</span> performCV:</div><div class="line">    cv_score = cross_validation.cross_val_score(alg, dtrain[predictors], dtrain[target], \</div><div class="line">                                               cv = cv_folds, scoring = <span class="string">'roc_auc'</span> )</div><div class="line"></div><div class="line">print(<span class="string">'\nModel Report'</span>)</div><div class="line">print(<span class="string">'Accuracy : &#123;:.4g&#125;'</span>.format(metrics.accuracy_score(dtrain[target].values, dtrain_predictions)))</div><div class="line">print(<span class="string">'AUC Score (Train): &#123;:f&#125;'</span>.format(metrics.roc_auc_score(dtrain[target], dtrain_predprob)))</div><div class="line"></div><div class="line"><span class="keyword">if</span> performCV:</div><div class="line">    print(<span class="string">'CV Score: Mean - &#123;:.7g&#125; | Std - &#123;:.7g&#125; | Min - &#123;:.7g&#125; | Max - &#123;:.7g&#125;'</span>.format(np.mean(cv_score),\</div><div class="line">                                                                                        np.std(cv_score),\</div><div class="line">                                                                                        np.min(cv_score),\</div><div class="line">                                                                                        np.max(cv_score)))</div><div class="line"></div><div class="line"><span class="keyword">if</span> printFeatReport:</div><div class="line">    feat_imp = pd.Series(alg.feature_importances_, predictors).sort_values(ascending = <span class="keyword">False</span>)</div><div class="line">    feat_imp.plot(kind = <span class="string">'bar'</span>, title = <span class="string">'Feature Importances'</span>)</div><div class="line">    plt.ylabel(<span class="string">'Feature Importance Score'</span>)</div></pre></td></tr></table></figure>
+<p>I haven’t been working with it long, but there are already a few tweeks that I’d like to make. Mainly, to list out the top performing features so I can start thinking about cutting down on the features I’m training with.</p>
+<p>I import the data, and do some very minor cleaning. I first drop the columns that are uniform, i.e. have zero variance, then I drop columns that are identical. Then, there is only one column of the data that has farily obvious outliers and several invalid entries. Discounting the outliers and NaN’s, the column has so little variance that instead of working with it futher, I didn’t use it to train the model. All told, 63 columns were removed from the training and testing data.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line">train = pd.read_csv(<span class="string">'Data/Santander/train.csv'</span>)</div><div class="line">test = pd.read_csv(<span class="string">'Data/Santander/test.csv'</span>)</div><div class="line"></div><div class="line">dropCols = []</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> train.columns.values:</div><div class="line">    <span class="keyword">if</span> len(train[i].unique()) == <span class="number">1</span>:</div><div class="line">        dropCols.append(i)</div><div class="line">print(<span class="string">'Dropping &#123;&#125; columns due to non-unique entries'</span>.format(len(dropCols)))</div><div class="line">train.drop(dropCols, axis = <span class="number">1</span>,  inplace = <span class="keyword">True</span>)</div><div class="line">test.drop(dropCols, axis = <span class="number">1</span>, inplace = <span class="keyword">True</span>)</div><div class="line"></div><div class="line">dropCols = []</div><div class="line">c = train.columns</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(len(c)<span class="number">-1</span>):</div><div class="line">    v = train[c[i]].values</div><div class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> range(i+<span class="number">1</span>,len(c)):</div><div class="line">        <span class="keyword">if</span> np.array_equal(v,train[c[j]].values):</div><div class="line">            dropCols.append(c[j])</div><div class="line">print(<span class="string">'Dropping &#123;&#125; columns due to duplicate columns'</span>.format(len(dropCols)))</div><div class="line">train.drop(dropCols, axis = <span class="number">1</span>,  inplace = <span class="keyword">True</span>)</div><div class="line">test.drop(dropCols, axis = <span class="number">1</span>, inplace = <span class="keyword">True</span>)</div><div class="line"></div><div class="line">train.loc[train.var3 &lt; <span class="number">-10000</span>, <span class="string">'var3'</span>] = np.nan</div><div class="line">test.loc[test.var3 &lt; <span class="number">-10000</span>, <span class="string">'var3'</span>] = np.nan</div><div class="line"></div><div class="line">colsWithNAN = []</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> train.columns.values:</div><div class="line">    <span class="keyword">if</span> train[i].isnull().sum() &gt; <span class="number">0</span>:</div><div class="line">        colsWithNAN.append(i)</div><div class="line">train.drop(colsWithNAN, axis = <span class="number">1</span>,  inplace = <span class="keyword">True</span>)</div><div class="line">test.drop(colsWithNAN, axis = <span class="number">1</span>, inplace = <span class="keyword">True</span>)</div></pre></td></tr></table></figure>
+<p>Next, I trained the model with all of the default values to get a baseline for the models performance.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">pred = [i <span class="keyword">for</span> i <span class="keyword">in</span> train.columns <span class="keyword">if</span> i <span class="keyword">not</span> <span class="keyword">in</span> [<span class="string">'ID'</span>, <span class="string">'TARGET'</span>]]</div><div class="line">gbm0 = GradientBoostingClassifier(random_state = <span class="number">10</span>)</div><div class="line">modelFit(gbm0, train, pred, <span class="string">'TARGET'</span>, printFeatReport = <span class="keyword">False</span>)</div></pre></td></tr></table></figure>
+<p>The results it gave me were decent for a first run. The AUC score was around .85 and it cross validated at .8352. Next, I ran a few different grid searches and refined the model.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">paramTest1 = &#123;<span class="string">'n_estimators'</span> : range(<span class="number">80</span>,<span class="number">141</span>,<span class="number">10</span>)&#125;</div><div class="line">gSearch1 = GridSearchCV(estimator = GradientBoostingClassifier(learning_rate = <span class="number">0.1</span>,\</div><div class="line">                                                               min_samples_split = <span class="number">500</span>,\</div><div class="line">                                                               min_samples_leaf = <span class="number">50</span>,\</div><div class="line">                                                               max_depth = <span class="number">8</span>,\</div><div class="line">                                                               max_features = <span class="string">'sqrt'</span>,\</div><div class="line">                                                               subsample = <span class="number">0.8</span>,\</div><div class="line">                                                               random_state = <span class="number">10</span>),</div><div class="line">                       param_grid = paramTest1, scoring = <span class="string">'roc_auc'</span>, n_jobs = <span class="number">8</span>, iid = <span class="keyword">False</span>, cv = <span class="number">5</span>)</div><div class="line">gSearch1.fit(train[pred], train[<span class="string">'TARGET'</span>])</div><div class="line">gSearch1.grid_scores_, gSearch1.best_params_, gSearch1.best_score_</div><div class="line"></div><div class="line">([mean: <span class="number">0.83770</span>, std: <span class="number">0.00833</span>, params: &#123;<span class="string">'n_estimators'</span>: <span class="number">80</span>&#125;,</div><div class="line">  mean: <span class="number">0.83784</span>, std: <span class="number">0.00819</span>, params: &#123;<span class="string">'n_estimators'</span>: <span class="number">90</span>&#125;,</div><div class="line">  mean: <span class="number">0.83793</span>, std: <span class="number">0.00867</span>, params: &#123;<span class="string">'n_estimators'</span>: <span class="number">100</span>&#125;,</div><div class="line">  mean: <span class="number">0.83757</span>, std: <span class="number">0.00844</span>, params: &#123;<span class="string">'n_estimators'</span>: <span class="number">110</span>&#125;,</div><div class="line">  mean: <span class="number">0.83734</span>, std: <span class="number">0.00855</span>, params: &#123;<span class="string">'n_estimators'</span>: <span class="number">120</span>&#125;,</div><div class="line">  mean: <span class="number">0.83726</span>, std: <span class="number">0.00826</span>, params: &#123;<span class="string">'n_estimators'</span>: <span class="number">130</span>&#125;,</div><div class="line">  mean: <span class="number">0.83698</span>, std: <span class="number">0.00809</span>, params: &#123;<span class="string">'n_estimators'</span>: <span class="number">140</span>&#125;],</div><div class="line"> &#123;<span class="string">'n_estimators'</span>: <span class="number">100</span>&#125;,</div><div class="line"> <span class="number">0.83792968856907224</span>)</div></pre></td></tr></table></figure>
+<p>First I checked the number of estimators, and as you can see from above, it found that 100 was the best fit.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div></pre></td><td class="code"><pre><div class="line">paramTest2 = &#123;<span class="string">'max_depth'</span> : range(<span class="number">5</span>,<span class="number">16</span>,<span class="number">2</span>), <span class="string">'min_samples_split'</span> : range(<span class="number">200</span>,<span class="number">1001</span>, <span class="number">200</span>)&#125;</div><div class="line">gSearch2 = GridSearchCV(estimator = GradientBoostingClassifier(learning_rate = <span class="number">0.1</span>,\</div><div class="line">                                                               n_estimators = <span class="number">100</span>,\</div><div class="line">                                                               min_samples_leaf = <span class="number">50</span>,\</div><div class="line">                                                               max_features = <span class="string">'sqrt'</span>,\</div><div class="line">                                                               subsample = <span class="number">0.8</span>,\</div><div class="line">                                                               random_state = <span class="number">10</span>),</div><div class="line">                       param_grid = paramTest2, scoring = <span class="string">'roc_auc'</span>, n_jobs = <span class="number">8</span>, iid = <span class="keyword">False</span>, cv = <span class="number">5</span>)</div><div class="line">gSearch2.fit(train[pred], train[<span class="string">'TARGET'</span>])</div><div class="line">gSearch2.grid_scores_, gSearch2.best_params_, gSearch2.best_score_</div><div class="line"></div><div class="line">([mean: <span class="number">0.83576</span>, std: <span class="number">0.00915</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">200</span>, <span class="string">'max_depth'</span>: <span class="number">5</span>&#125;,</div><div class="line">  mean: <span class="number">0.83705</span>, std: <span class="number">0.00813</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">400</span>, <span class="string">'max_depth'</span>: <span class="number">5</span>&#125;,</div><div class="line">  mean: <span class="number">0.83613</span>, std: <span class="number">0.00887</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">600</span>, <span class="string">'max_depth'</span>: <span class="number">5</span>&#125;,</div><div class="line">  mean: <span class="number">0.83639</span>, std: <span class="number">0.00912</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">800</span>, <span class="string">'max_depth'</span>: <span class="number">5</span>&#125;,</div><div class="line">  mean: <span class="number">0.83573</span>, std: <span class="number">0.00873</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">1000</span>, <span class="string">'max_depth'</span>: <span class="number">5</span>&#125;,</div><div class="line">  mean: <span class="number">0.83491</span>, std: <span class="number">0.00716</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">200</span>, <span class="string">'max_depth'</span>: <span class="number">7</span>&#125;,</div><div class="line">  mean: <span class="number">0.83665</span>, std: <span class="number">0.00764</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">400</span>, <span class="string">'max_depth'</span>: <span class="number">7</span>&#125;,</div><div class="line">  mean: <span class="number">0.83653</span>, std: <span class="number">0.00902</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">600</span>, <span class="string">'max_depth'</span>: <span class="number">7</span>&#125;,</div><div class="line">  mean: <span class="number">0.83680</span>, std: <span class="number">0.00873</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">800</span>, <span class="string">'max_depth'</span>: <span class="number">7</span>&#125;,</div><div class="line">  mean: <span class="number">0.83667</span>, std: <span class="number">0.00902</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">1000</span>, <span class="string">'max_depth'</span>: <span class="number">7</span>&#125;,</div><div class="line">  mean: <span class="number">0.83550</span>, std: <span class="number">0.00747</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">200</span>, <span class="string">'max_depth'</span>: <span class="number">9</span>&#125;,</div><div class="line">  mean: <span class="number">0.83760</span>, std: <span class="number">0.00702</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">400</span>, <span class="string">'max_depth'</span>: <span class="number">9</span>&#125;,</div><div class="line">  mean: <span class="number">0.83716</span>, std: <span class="number">0.00751</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">600</span>, <span class="string">'max_depth'</span>: <span class="number">9</span>&#125;,</div><div class="line">  mean: <span class="number">0.83675</span>, std: <span class="number">0.00851</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">800</span>, <span class="string">'max_depth'</span>: <span class="number">9</span>&#125;,</div><div class="line">  mean: <span class="number">0.83663</span>, std: <span class="number">0.00870</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">1000</span>, <span class="string">'max_depth'</span>: <span class="number">9</span>&#125;,</div><div class="line">  mean: <span class="number">0.83276</span>, std: <span class="number">0.00819</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">200</span>, <span class="string">'max_depth'</span>: <span class="number">11</span>&#125;,</div><div class="line">  mean: <span class="number">0.83558</span>, std: <span class="number">0.00950</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">400</span>, <span class="string">'max_depth'</span>: <span class="number">11</span>&#125;,</div><div class="line">  mean: <span class="number">0.83589</span>, std: <span class="number">0.00749</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">600</span>, <span class="string">'max_depth'</span>: <span class="number">11</span>&#125;,</div><div class="line">  mean: <span class="number">0.83713</span>, std: <span class="number">0.00861</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">800</span>, <span class="string">'max_depth'</span>: <span class="number">11</span>&#125;,</div><div class="line">  mean: <span class="number">0.83527</span>, std: <span class="number">0.00898</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">1000</span>, <span class="string">'max_depth'</span>: <span class="number">11</span>&#125;,</div><div class="line">  mean: <span class="number">0.83208</span>, std: <span class="number">0.00747</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">200</span>, <span class="string">'max_depth'</span>: <span class="number">13</span>&#125;,</div><div class="line">  mean: <span class="number">0.83346</span>, std: <span class="number">0.00818</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">400</span>, <span class="string">'max_depth'</span>: <span class="number">13</span>&#125;,</div><div class="line">  mean: <span class="number">0.83536</span>, std: <span class="number">0.00780</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">600</span>, <span class="string">'max_depth'</span>: <span class="number">13</span>&#125;,</div><div class="line">  mean: <span class="number">0.83700</span>, std: <span class="number">0.00883</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">800</span>, <span class="string">'max_depth'</span>: <span class="number">13</span>&#125;,</div><div class="line">  mean: <span class="number">0.83624</span>, std: <span class="number">0.00855</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">1000</span>, <span class="string">'max_depth'</span>: <span class="number">13</span>&#125;,</div><div class="line">  mean: <span class="number">0.83061</span>, std: <span class="number">0.00964</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">200</span>, <span class="string">'max_depth'</span>: <span class="number">15</span>&#125;,</div><div class="line">  mean: <span class="number">0.83242</span>, std: <span class="number">0.00796</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">400</span>, <span class="string">'max_depth'</span>: <span class="number">15</span>&#125;,</div><div class="line">  mean: <span class="number">0.83445</span>, std: <span class="number">0.00908</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">600</span>, <span class="string">'max_depth'</span>: <span class="number">15</span>&#125;,</div><div class="line">  mean: <span class="number">0.83434</span>, std: <span class="number">0.00896</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">800</span>, <span class="string">'max_depth'</span>: <span class="number">15</span>&#125;,</div><div class="line">  mean: <span class="number">0.83583</span>, std: <span class="number">0.00880</span>, params: &#123;<span class="string">'min_samples_split'</span>: <span class="number">1000</span>, <span class="string">'max_depth'</span>: <span class="number">15</span>&#125;],</div><div class="line"> &#123;<span class="string">'max_depth'</span>: <span class="number">9</span>, <span class="string">'min_samples_split'</span>: <span class="number">400</span>&#125;,</div><div class="line"> <span class="number">0.83759736130706453</span>)</div></pre></td></tr></table></figure>
+<p>Next, I searched for the <code>max_depth</code> and <code>min_samples_split</code> parameters. As you can see, the best values were 9 and 400 respectively.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div></pre></td><td class="code"><pre><div class="line">paramTest3 = &#123;<span class="string">'min_samples_leaf'</span> : range(<span class="number">30</span>,<span class="number">71</span>, <span class="number">10</span>)&#125;</div><div class="line">gSearch3 = GridSearchCV(estimator = GradientBoostingClassifier(learning_rate = <span class="number">0.1</span>,\</div><div class="line">                                                               n_estimators = <span class="number">100</span>,\</div><div class="line">                                                               max_depth = <span class="number">9</span>,\</div><div class="line">                                                               min_samples_split = <span class="number">400</span>,\</div><div class="line">                                                               max_features = <span class="string">'sqrt'</span>,\</div><div class="line">                                                               subsample = <span class="number">0.8</span>,\</div><div class="line">                                                               random_state = <span class="number">10</span>),</div><div class="line">                        param_grid = paramTest3, scoring = <span class="string">'roc_auc'</span>, n_jobs = <span class="number">8</span>, iid = <span class="keyword">False</span>, cv = <span class="number">5</span>)</div><div class="line">gSearch3.fit(train[pred], train[<span class="string">'TARGET'</span>])</div><div class="line">gSearch3.grid_scores_, gSearch3.best_params_, gSearch3.best_score_</div><div class="line"></div><div class="line">([mean: <span class="number">0.83655</span>, std: <span class="number">0.00843</span>, params: &#123;<span class="string">'min_samples_leaf'</span>: <span class="number">30</span>&#125;,</div><div class="line">  mean: <span class="number">0.83702</span>, std: <span class="number">0.00998</span>, params: &#123;<span class="string">'min_samples_leaf'</span>: <span class="number">40</span>&#125;,</div><div class="line">  mean: <span class="number">0.83760</span>, std: <span class="number">0.00702</span>, params: &#123;<span class="string">'min_samples_leaf'</span>: <span class="number">50</span>&#125;,</div><div class="line">  mean: <span class="number">0.83666</span>, std: <span class="number">0.00899</span>, params: &#123;<span class="string">'min_samples_leaf'</span>: <span class="number">60</span>&#125;,</div><div class="line">  mean: <span class="number">0.83603</span>, std: <span class="number">0.00967</span>, params: &#123;<span class="string">'min_samples_leaf'</span>: <span class="number">70</span>&#125;],</div><div class="line"> &#123;<span class="string">'min_samples_leaf'</span>: <span class="number">50</span>&#125;,</div><div class="line"> <span class="number">0.83759736130706453</span>)</div><div class="line"></div><div class="line"> paramTest4 = &#123;<span class="string">'max_features'</span> : range(<span class="number">17</span>,<span class="number">30</span>, <span class="number">2</span>)&#125;</div><div class="line">gSearch4 = GridSearchCV(estimator = GradientBoostingClassifier(learning_rate = <span class="number">0.1</span>,\</div><div class="line">                                                               n_estimators = <span class="number">100</span>,\</div><div class="line">                                                               max_depth = <span class="number">9</span>,\</div><div class="line">                                                               min_samples_split = <span class="number">400</span>,\</div><div class="line">                                                               min_samples_leaf = <span class="number">50</span>,\</div><div class="line">                                                               subsample = <span class="number">0.8</span>,\</div><div class="line">                                                               random_state = <span class="number">10</span>),</div><div class="line">                       param_grid = paramTest4, scoring = <span class="string">'roc_auc'</span>, n_jobs = <span class="number">8</span>, iid = <span class="keyword">False</span>, cv = <span class="number">5</span>)</div><div class="line">gSearch4.fit(train[pred], train[<span class="string">'TARGET'</span>])</div><div class="line">gSearch4.grid_scores_, gSearch4.best_params_, gSearch4.best_score_</div><div class="line"></div><div class="line">([mean: <span class="number">0.83760</span>, std: <span class="number">0.00702</span>, params: &#123;<span class="string">'max_features'</span>: <span class="number">17</span>&#125;,</div><div class="line">  mean: <span class="number">0.83686</span>, std: <span class="number">0.00983</span>, params: &#123;<span class="string">'max_features'</span>: <span class="number">19</span>&#125;,</div><div class="line">  mean: <span class="number">0.83567</span>, std: <span class="number">0.00880</span>, params: &#123;<span class="string">'max_features'</span>: <span class="number">21</span>&#125;,</div><div class="line">  mean: <span class="number">0.83631</span>, std: <span class="number">0.00850</span>, params: &#123;<span class="string">'max_features'</span>: <span class="number">23</span>&#125;,</div><div class="line">  mean: <span class="number">0.83735</span>, std: <span class="number">0.00862</span>, params: &#123;<span class="string">'max_features'</span>: <span class="number">25</span>&#125;,</div><div class="line">  mean: <span class="number">0.83588</span>, std: <span class="number">0.00836</span>, params: &#123;<span class="string">'max_features'</span>: <span class="number">27</span>&#125;,</div><div class="line">  mean: <span class="number">0.83722</span>, std: <span class="number">0.00796</span>, params: &#123;<span class="string">'max_features'</span>: <span class="number">29</span>&#125;],</div><div class="line"> &#123;<span class="string">'max_features'</span>: <span class="number">17</span>&#125;,</div><div class="line"> <span class="number">0.83759736130706453</span>)</div><div class="line"></div><div class="line"> paramTest5 = &#123;<span class="string">'subsample'</span> : [<span class="number">0.6</span>, <span class="number">0.7</span>, <span class="number">0.75</span>, <span class="number">0.8</span>, <span class="number">0.85</span>, <span class="number">0.9</span>]&#125;</div><div class="line">gSearch5 = GridSearchCV(estimator = GradientBoostingClassifier(learning_rate = <span class="number">0.1</span>,\</div><div class="line">                                                                n_estimators = <span class="number">100</span>,\</div><div class="line">                                                                max_depth = <span class="number">9</span>,\</div><div class="line">                                                                min_samples_split = <span class="number">400</span>,\</div><div class="line">                                                                min_samples_leaf = <span class="number">50</span>,\</div><div class="line">                                                                max_features = <span class="string">'sqrt'</span>,\</div><div class="line">                                                                random_state = <span class="number">10</span>),\</div><div class="line">                                                                param_grid = paramTest5, scoring = <span class="string">'roc_auc'</span>, n_jobs = <span class="number">8</span>, iid = <span class="keyword">False</span>, cv = <span class="number">5</span>)</div><div class="line">gSearch5.fit(train[pred], train[<span class="string">'TARGET'</span>])</div><div class="line">gSearch5.grid_scores_, gSearch5.best_params_, gSearch5.best_score_</div><div class="line"></div><div class="line">([mean: <span class="number">0.83661</span>, std: <span class="number">0.00957</span>, params: &#123;<span class="string">'subsample'</span>: <span class="number">0.6</span>&#125;,</div><div class="line">  mean: <span class="number">0.83638</span>, std: <span class="number">0.00789</span>, params: &#123;<span class="string">'subsample'</span>: <span class="number">0.7</span>&#125;,</div><div class="line">  mean: <span class="number">0.83606</span>, std: <span class="number">0.00882</span>, params: &#123;<span class="string">'subsample'</span>: <span class="number">0.75</span>&#125;,</div><div class="line">  mean: <span class="number">0.83760</span>, std: <span class="number">0.00702</span>, params: &#123;<span class="string">'subsample'</span>: <span class="number">0.8</span>&#125;,</div><div class="line">  mean: <span class="number">0.83678</span>, std: <span class="number">0.00788</span>, params: &#123;<span class="string">'subsample'</span>: <span class="number">0.85</span>&#125;,</div><div class="line">  mean: <span class="number">0.83663</span>, std: <span class="number">0.00895</span>, params: &#123;<span class="string">'subsample'</span>: <span class="number">0.9</span>&#125;],</div><div class="line"> &#123;<span class="string">'subsample'</span>: <span class="number">0.8</span>&#125;,</div><div class="line"> <span class="number">0.83759736130706453</span>)</div></pre></td></tr></table></figure>
+<p>The final three grid searches I ran were for <code>min_samples_leaf</code>, <code>max_features</code>, and <code>subsample</code>. After tuning these 6 parameters, I got the cross validation score to .8379 or an increase of .002. The following is the final feature importance chart.<br><br><img src="/images/GBC-Final-Feat-Importance.png" alt="GBC Final Feature Importance Chart"></p>
+<p>The next thing I plan to do with this model is reduce the number of features using the above chart and adjust the learning rate. I’m hoping to be able to squeeze a few more hundreths of a point out of this model.</p>
+<p>This will be an ongoing series, as I have already trained a random forest and used XGBoost to model the same data and will be posting about them in the future. Stay tuned, because eventually I’ll start to ensemble these models and see how high I can finish in the leaderboards. As of writing this, I’m sitting just above the 50th percentile. You can find the <a href="https://github.com/SayWhat1/Santander-Customer-Satisfaction-Kaggle/blob/master/Santander%20Customer%20Satisfaction%20GBC.ipynb" target="_blank" rel="external">notebook file</a> on my Github, but be warned that it is constantly changing as I find time to mess with it.</p>
+
+      
+    </div>
+
+    
+      
+
+    
+
+    <footer class="article-footer">
+      <a data-url="http://derekelliott.me/2016/12/03/Santander-Customer-Satisfaction-Gradient-Boosted-Classifier/" data-id="ciwa1ntk3000108k7ptuhpo1o" class="article-share-link">
+        <i class="fa fa-share"></i> Share
+      </a>
+      
+      
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-First-Post" class="article article-type-post" itemscope itemprop="blogPost">
+
+  <header class="article-header">
+    
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/12/03/First-Post/">This is just a test</a>
+    </h1>
+  
+
+
+  </header>
+
+  <div class="article-meta">
+    <div class="article-datetime">
+  <a href="/2016/12/03/First-Post/" class="article-date"><time datetime="2016-12-04T02:42:36.000Z" itemprop="datePublished">2016-12-03</time></a>
+</div>
+
+    
+    
+
+  </div>
+  <div class="article-inner">
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>This is an example of a helper function I used when building my XGBoost model for the Kaggle competition, Santander Customer Satisfaction.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">modelFit</span><span class="params">(alg, dtrain, predictors, target, useTrainCV = True, early_stopping_rounds = <span class="number">50</span>, cv_folds = <span class="number">5</span>)</span>:</span></div><div class="line">    <span class="string">'''.'''</span></div><div class="line"></div><div class="line">    <span class="keyword">if</span> useTrainCV:</div><div class="line">		xgb_param = alg.get_xgb_params()</div><div class="line">		xgtrain = xgb.DMatrix(dtrain[predictors].values, label = dtrain[target].values)</div><div class="line">		cvresult = xgb.cv(xgb_param, xgtrain, num_boost_round = alg.get_params()[<span class="string">'n_estimators'</span>], nfold = cv_folds,\</div><div class="line">                          metrics = <span class="string">'auc'</span>, early_stopping_rounds = early_stopping_rounds, verbose_eval = <span class="number">100</span>)</div><div class="line">        alg.set_params(n_estimators = cvresult.shape[<span class="number">0</span>])</div><div class="line"></div><div class="line">        alg.fit(dtrain[predictors], dtrain[target], eval_metric = <span class="string">'auc'</span>)</div><div class="line"></div><div class="line">        dtrain_predictions = alg.predict(dtrain[predictors])</div><div class="line">        dtrain_predprob = alg.predict_proba(dtrain[predictors])[:,<span class="number">1</span>]</div><div class="line"></div><div class="line">        print(<span class="string">'\\nModel Report'</span>)</div><div class="line">        print(<span class="string">'Accuracy : &#123;:.4g&#125;'</span>.format(metrics.accuracy_score(dtrain[target].values, dtrain_predictions)))</div><div class="line">        print(<span class="string">'AUC Score (Train): &#123;:f&#125;'</span>.format(metrics.roc_auc_score(dtrain[target], dtrain_predprob)))</div><div class="line"></div><div class="line">        feat_imp = pd.Series(alg.booster().get_fscore()).sort_values(ascending = <span class="keyword">False</span>)</div><div class="line">        feat_imp.plot(kind = <span class="string">'bar'</span>, title = <span class="string">'Feature Importances'</span>)</div><div class="line">        plt.ylabel(<span class="string">'Feature Importance Score'</span>)<span class="string">"</span></div></pre></td></tr></table></figure>
+<p>The End?</p>
+
+      
+    </div>
+
+    
+      
+
+    
+
+    <footer class="article-footer">
+      <a data-url="http://derekelliott.me/2016/12/03/First-Post/" data-id="ciwa1ntjy000008k7bzdd0mzt" class="article-share-link">
+        <i class="fa fa-share"></i> Share
+      </a>
+      
+      
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+
+
+
+
+        </div>
+        <div class="col-sm-3 col-sm-offset-1 blog-sidebar">
+          
+  <div class="sidebar-module sidebar-module-inset">
+  <h4>About</h4>
+  <p>Etiam porta <em>sem malesuada magna</em> mollis euismod. Cras mattis consectetur purus sit amet fermentum. Aenean lacinia bibendum nulla sed consectetur.</p>
+
+</div>
+
+
+  
+
+
+  
+
+
+  
+
+  
+  <div class="sidebar-module">
+    <h4>Archives</h4>
+    <ul class="sidebar-module-list"><li class="sidebar-module-list-item"><a class="sidebar-module-list-link" href="/archives/2016/12/">December 2016</a><span class="sidebar-module-list-count">3</span></li></ul>
+  </div>
+
+
+
+  
+  <div class="sidebar-module">
+    <h4>Recents</h4>
+    <ul class="sidebar-module-list">
+      
+        <li>
+          <a href="/2016/12/03/Santander-Customer-Satisfaction-Random-Forest-Classifier/">Santander Customer Satisfaction - Random Forest Classifier</a>
+        </li>
+      
+        <li>
+          <a href="/2016/12/03/Santander-Customer-Satisfaction-Gradient-Boosted-Classifier/">Santander Customer Satisfaction - Gradient Boosted Classifier</a>
+        </li>
+      
+        <li>
+          <a href="/2016/12/03/First-Post/">This is just a test</a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+
+        </div>
+    </div>
+  </div>
+  <footer class="blog-footer">
+  <div class="container">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Derek Elliott<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+  
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js" integrity="sha384-8gBf6Y4YYq7Jx97PIqmTwLPin4hxIzQw5aDmUg/DDhul9fFpbbLcLh3nTIIDJKhx" crossorigin="anonymous"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+</body>
+</html>
