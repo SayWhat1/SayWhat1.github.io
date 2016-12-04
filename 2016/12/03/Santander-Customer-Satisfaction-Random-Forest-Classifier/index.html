@@ -1,10 +1,13 @@
 <!DOCTYPE html>
-<html lang=en>
+<html>
 <head>
     <meta charset="utf-8">
     
     <title>Santander Customer Satisfaction - Random Forest Classifier | Derek Elliott Blog</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+        <meta name="keywords" content="Python,Data Analysis,Kaggle" />
+    
     <meta name="description" content="This is the second in a series of post detailing the analysis I’ve performed on the Santander Customer Satisfaction competition on Kaggle.
 This is the first algorithm that I tried to tune the paramete">
 <meta property="og:type" content="article">
@@ -19,68 +22,58 @@ This is the first algorithm that I tried to tune the paramete">
 <meta name="twitter:description" content="This is the second in a series of post detailing the analysis I’ve performed on the Santander Customer Satisfaction competition on Kaggle.
 This is the first algorithm that I tried to tune the paramete">
     
-
+    <link href='https://fonts.googleapis.com/css?family=Satisfy' rel='stylesheet' type='text/css'>
     
 
     
-        <link rel="icon" href="/images/favicon.png" />
+        <link rel="icon" href="/favicon.ico" />
     
 
-    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
-    <link rel="stylesheet" href="/libs/open-sans/styles.css">
-    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+    <link rel="stylesheet" href="/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/vendor/titillium-web/styles.css">
+    <link rel="stylesheet" href="/vendor/source-code-pro/styles.css">
 
     <link rel="stylesheet" href="/css/style.css">
 
-    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/vendor/jquery/2.0.3/jquery.min.js"></script>
     
     
-        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+        <link rel="stylesheet" href="/vendor/fancybox/jquery.fancybox.css">
     
     
-        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+        <link rel="stylesheet" href="/vendor/scrollLoading/style.css">
     
     
     
-    
-
 
 </head>
 
 <body>
-    <div id="container">
+    <div id="wrap">
         <header id="header">
-    <div id="header-main" class="header-inner">
-        <div class="outer">
-            <a href="/" id="logo">
-                
-                <span class="site-title">Derek Elliott Blog</span>
-            </a>
-            <nav id="main-nav">
-                
-                    <a class="main-nav-link" href="/.">Home</a>
-                
-                    <a class="main-nav-link" href="/archives">Archives</a>
-                
-                    <a class="main-nav-link" href="/categories">Categories</a>
-                
-                    <a class="main-nav-link" href="/tags">Tags</a>
-                
-                    <a class="main-nav-link" href="/about">About</a>
-                
-            </nav>
-            
-                
-                <nav id="sub-nav">
-                    <div class="profile" id="profile-nav">
-                        <a id="profile-anchor" href="javascript:;">
-                            <img class="avatar" src="/" />
-                            <i class="fa fa-caret-down"></i>
-                        </a>
-                    </div>
-                </nav>
-            
-            <div id="search-form-wrap">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo">Derek Elliott Blog</a>
+                    </h1>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/">Home</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Data-Analysis/">Data Analysis</a></li></ul>
+                                    
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
 
     <form class="search-form">
         <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
@@ -117,125 +110,47 @@ This is the first algorithm that I tried to tune the paramete">
 <script src="/js/insight.js"></script>
 
 </div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-    <div id="main-nav-mobile" class="header-sub header-inner">
-        <table class="menu outer">
-            <tr>
-                
-                    <td><a class="main-nav-link" href="/.">Home</a></td>
-                
-                    <td><a class="main-nav-link" href="/archives">Archives</a></td>
-                
-                    <td><a class="main-nav-link" href="/categories">Categories</a></td>
-                
-                    <td><a class="main-nav-link" href="/tags">Tags</a></td>
-                
-                    <td><a class="main-nav-link" href="/about">About</a></td>
-                
-                <td>
-                    
-    <div class="search-form">
-        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
-    </div>
-
-                </td>
-            </tr>
-        </table>
     </div>
 </header>
 
-        <div class="outer">
-            
-                
-
-<aside id="profile">
-    <div class="inner profile-inner">
-        <div class="base-info profile-block">
-            <h2 id="name">Derek Elliott</h2>
-            <h3 id="title">Data Scientist, Cloud Analytics Developer</h3>
-            <span id="location"><i class="fa fa-map-marker"></i>Washington DC</span>
-            <a id="follow" target="_blank" href="https://github.com/SayWhat1/">FOLLOW</a>
-        </div>
-        <div class="article-info profile-block">
-            <div class="article-info-block">
-                3
-                <span>posts</span>
-            </div>
-            <div class="article-info-block">
-                3
-                <span>tags</span>
-            </div>
-        </div>
-        
-        <div class="profile-block social-links">
-            <table>
-                <tr>
-                    
-                    
-                    <td>
-                        <a href="https://github.com/SayWhat1/" target="_blank" title="github" class=tooltip>
-                            <i class="fa fa-github"></i>
-                        </a>
-                    </td>
-                    
-                    <td>
-                        <a href="/" target="_blank" title="twitter" class=tooltip>
-                            <i class="fa fa-twitter"></i>
-                        </a>
-                    </td>
-                    
-                </tr>
-            </table>
-        </div>
-        
-    </div>
-</aside>
-
-            
-            <section id="main"><article id="post-Santander-Customer-Satisfaction-Random-Forest-Classifier" class="article article-type-post" itemscope itemprop="blogPost">
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/Data-Analysis/">Data Analysis</a>
+    </h1>
+</div>
+                        <div class="main-body-content">
+                            <article id="post-Santander-Customer-Satisfaction-Random-Forest-Classifier" class="article article-single article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
-        
         
             <header class="article-header">
                 
     
         <h1 class="article-title" itemprop="name">
-            Santander Customer Satisfaction - Random Forest Classifier
+        Santander Customer Satisfaction - Random Forest Classifier
         </h1>
     
 
-                
-                    <div class="article-meta">
-                        
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/2016/12/03/Santander-Customer-Satisfaction-Random-Forest-Classifier/">
-            <time datetime="2016-12-04T02:43:30.000Z" itemprop="datePublished">2016-12-03</time>
-        </a>
-    </div>
-
-
-                        
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/categories/Data-Analysis/">Data Analysis</a>
-    </div>
-
-                        
-    <div class="article-tag">
-        <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/tags/Data-Analysis/">Data Analysis</a>, <a class="tag-link" href="/tags/Kaggle/">Kaggle</a>, <a class="tag-link" href="/tags/Python/">Python</a>
-    </div>
-
-                    </div>
-                
             </header>
         
-        
-        <div class="article-entry" itemprop="articleBody">
-        
+        <div class="article-subtitle">
+            <a href="/2016/12/03/Santander-Customer-Satisfaction-Random-Forest-Classifier/" class="article-date">
+    <time datetime="2016-12-04T02:43:30.000Z" itemprop="datePublished">2016-12-03</time>
+</a>
             
+    <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Data-Analysis/">Data Analysis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kaggle/">Kaggle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/">Python</a></li></ul>
+
+        </div>
+        <div class="article-entry" itemprop="articleBody">
             <p>This is the second in a series of post detailing the analysis I’ve performed on the <a href="https://www.kaggle.com/c/santander-customer-satisfaction" target="_blank" rel="external">Santander Customer Satisfaction</a> competition on Kaggle.</p>
 <p>This is the first algorithm that I tried to tune the parameters on my own.  I couldn’t find a good guide, so I did my best based on the guide I used for the gradient boosted algorithm.  I used the same helper function, modified slightly to fit the algorithm.</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">modelFit</span><span class="params">(alg, dtrain, predictors, target, performCV = True, printFeatReport = True, cv_folds = <span class="number">5</span>)</span>:</span></div><div class="line"></div><div class="line">  alg.fit(dtrain[predictors], dtrain[target])</div><div class="line"></div><div class="line">  dtrain_predictions = alg.predict(dtrain[predictors])</div><div class="line">  dtrain_predprob = alg.predict_proba(dtrain[predictors])[:,<span class="number">1</span>]</div><div class="line"></div><div class="line">  <span class="keyword">if</span> performCV:</div><div class="line">      cv_score = cross_validation.cross_val_score(alg, dtrain[predictors], dtrain[target], \</div><div class="line">                                                 cv = cv_folds, scoring = <span class="string">'roc_auc'</span> )</div><div class="line"></div><div class="line">  print(<span class="string">'\nModel Report'</span>)</div><div class="line">  print(<span class="string">'Accuracy : &#123;:.4g&#125;'</span>.format(metrics.accuracy_score(dtrain[target].values, dtrain_predictions)))</div><div class="line">  print(<span class="string">'AUC Score (Train): &#123;:f&#125;'</span>.format(metrics.roc_auc_score(dtrain[target], dtrain_predprob)))</div><div class="line"></div><div class="line">  <span class="keyword">if</span> performCV:</div><div class="line">      print(<span class="string">'CV Score: Mean - &#123;:.7g&#125; | Std - &#123;:.7g&#125; | Min - &#123;:.7g&#125; | Max - &#123;:.7g&#125;'</span>.format(np.mean(cv_score),\</div><div class="line">                                                                                          np.std(cv_score),\</div><div class="line">                                                                                          np.min(cv_score),\</div><div class="line">                                                                                          np.max(cv_score)))</div><div class="line"></div><div class="line">  <span class="keyword">if</span> printFeatReport:</div><div class="line">      feat_imp = pd.Series(alg.feature_importances_, predictors).sort_values(ascending = <span class="keyword">False</span>)</div><div class="line">      feat_imp.plot(kind = <span class="string">'bar'</span>, title = <span class="string">'Feature Importances'</span>)</div><div class="line">      plt.ylabel(<span class="string">'Feature Importance Score'</span>)</div></pre></td></tr></table></figure>
@@ -254,24 +169,15 @@ This is the first algorithm that I tried to tune the paramete">
 <p>This lead to a CV score of 0.8143.  That’s an increase of almost 0.05.  That’s a substantial improvement over the default parameters.  This is as far as I took this model, but in the future, I plan on following up with a few grid searches to further refine the parameters.  This is because of the way the RandomizedSearchCV searches for the best parameters.  It only selects a sample from the given range, so while what it found is an improvement, it might not have provided the optimal parameters.</p>
 <p>That’s it for this edition.  The next post will detail how I used the XGBoost model to fit the same data.  That’s all I already have prepared, so following that, it’s hard to say what will be coming.  I might go back and do the things I’ve already suggested with the models I already have, or I’ll start to ensemble.  I also need to put up something on the initial data exploration and do some visualizations.  So, stay tuned.  You can find the <a href="https://github.com/SayWhat1/Santander-Customer-Satisfaction-Kaggle/blob/master/Santander%20Customer%20Satisfaction%20RandomForest.ipynb" target="_blank" rel="external">notebook</a> on my GitHub, but as I work on this model and the others, it’s subject to change.</p>
 
-        
         </div>
         <footer class="article-footer">
-            <div class="share-container">
+            
 
 
-
-</div>
 
     <a data-url="http://derekelliott.me/2016/12/03/Santander-Customer-Satisfaction-Random-Forest-Classifier/" data-id="ciwa1s0yq0001awk7ync98yl5" class="article-share-link"><i class="fa fa-share"></i>Share</a>
 <script>
     (function ($) {
-        // Prevent duplicate binding
-        if (typeof(__SHARE_BUTTON_BINDED__) === 'undefined' || !__SHARE_BUTTON_BINDED__) {
-            __SHARE_BUTTON_BINDED__ = true;
-        } else {
-            return;
-        }
         $('body').on('click', function() {
             $('.article-share-box.on').removeClass('on');
         }).on('click', '.article-share-link', function(e) {
@@ -296,10 +202,10 @@ This is the first algorithm that I tried to tune the paramete">
                     '<div id="' + id + '" class="article-share-box">',
                         '<input class="article-share-input" value="' + url + '">',
                         '<div class="article-share-links">',
-                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="fa fa-twitter article-share-twitter" target="_blank" title="Twitter"></a>',
-                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="fa fa-facebook article-share-facebook" target="_blank" title="Facebook"></a>',
-                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="fa fa-pinterest article-share-pinterest" target="_blank" title="Pinterest"></a>',
-                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="fa fa-google article-share-google" target="_blank" title="Google+"></a>',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
                         '</div>',
                     '</div>'
                 ].join('');
@@ -329,10 +235,42 @@ This is the first algorithm that I tried to tune the paramete">
     })(jQuery);
 </script>
 
-            
-    
-
         </footer>
+    </div>
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+    
+    </section>
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>follow:</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/zirho" target="_blank">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+                <li>
+                    <a class="social-tooltip" title="portfolio" href="https://zirho.github.io/portfolio" target="_blank">
+                        <i class="icon fa fa-trophy"></i>
+                    </a>
+                </li>
+            
+        </ul>
     </div>
     
         
@@ -340,29 +278,20 @@ This is the first algorithm that I tried to tune the paramete">
     
     
         <a href="/2016/12/03/Santander-Customer-Satisfaction-Gradient-Boosted-Classifier/" id="article-nav-older" class="article-nav-link-wrap">
-            <strong class="article-nav-caption">Older</strong>
-            <div class="article-nav-title">Santander Customer Satisfaction - Gradient Boosted Classifier</div>
+        <strong class="article-nav-caption">older</strong>
+        <p class="article-nav-title">Santander Customer Satisfaction - Gradient Boosted Classifier</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
         </a>
     
 </nav>
 
-
     
-</article>
-
-
-    
-    <section id="comments">
-    
-    </section>
-
-</section>
-            
-                <aside id="sidebar">
-   
+    <div class="widgets-container">
         
+            
+                
     <div class="widget-wrap">
-        <h3 class="widget-title">recent</h3>
+        <h3 class="widget-title">recents</h3>
         <div class="widget">
             <ul id="recent-post" class="">
                 
@@ -373,6 +302,7 @@ This is the first algorithm that I tried to tune the paramete">
     
     
         <span class="thumbnail-image thumbnail-none"></span>
+    
     
 </a>
 
@@ -391,7 +321,8 @@ This is the first algorithm that I tried to tune the paramete">
                             <a href="/2016/12/03/Santander-Customer-Satisfaction-Gradient-Boosted-Classifier/" class="thumbnail">
     
     
-        <span class="thumbnail-image thumbnail-none"></span>
+        <span style="background-image:url(/images/GBC-Final-Feat-Importance.png)" alt="Santander Customer Satisfaction - Gradient Boosted Classifier" class="thumbnail-image"></span>
+    
     
 </a>
 
@@ -412,6 +343,7 @@ This is the first algorithm that I tried to tune the paramete">
     
         <span class="thumbnail-image thumbnail-none"></span>
     
+    
 </a>
 
                         </div>
@@ -427,44 +359,48 @@ This is the first algorithm that I tried to tune the paramete">
         </div>
     </div>
 
-    
-        
-    <div class="widget-wrap">
+            
+                
+    <div class="widget-wrap widget-list">
         <h3 class="widget-title">categories</h3>
         <div class="widget">
             <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Data-Analysis/">Data Analysis</a><span class="category-list-count">2</span></li></ul>
         </div>
     </div>
 
-    
-        
-    <div class="widget-wrap">
+
+            
+                
+    <div class="widget-wrap widget-list">
         <h3 class="widget-title">archives</h3>
         <div class="widget">
             <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a><span class="archive-list-count">3</span></li></ul>
         </div>
     </div>
 
-    
-        
-    <div class="widget-wrap">
+
+            
+                
+    <div class="widget-wrap widget-list">
         <h3 class="widget-title">tags</h3>
         <div class="widget">
             <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Data-Analysis/">Data Analysis</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kaggle/">Kaggle</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/">Python</a><span class="tag-list-count">2</span></li></ul>
         </div>
     </div>
 
-    
-        
-    <div class="widget-wrap">
+
+            
+                
+    <div class="widget-wrap widget-float">
         <h3 class="widget-title">tag cloud</h3>
         <div class="widget tagcloud">
             <a href="/tags/Data-Analysis/" style="font-size: 10px;">Data Analysis</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a>
         </div>
     </div>
 
-    
-        
+
+            
+                
     <div class="widget-wrap widget-list">
         <h3 class="widget-title">links</h3>
         <div class="widget">
@@ -479,36 +415,57 @@ This is the first algorithm that I tried to tune the paramete">
     </div>
 
 
-    
-    <div id="toTop" class="fa fa-angle-up"></div>
-</aside>
             
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
         </div>
         <footer id="footer">
-    <div class="outer">
-        <div id="footer-info" class="inner">
-            &copy; 2016 Derek Elliott<br>
-            Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="http://github.com/ppoffice">PPOffice</a>
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2016 Derek Elliott</p>
+                <p>Powered by <a href="//hexo.io/" target="_blank">Hexo</a>. Theme by <a href="//github.com/ppoffice" target="_blank">PPOffice</a></p>
+            </div>
         </div>
     </div>
 </footer>
+
+
         
+    
+    <script>
+    var disqus_shortname = 'zirhocodepaste';
+    
+    
+    var disqus_url = 'http://derekelliott.me/2016/12/03/Santander-Customer-Satisfaction-Random-Forest-Classifier/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
 
     
-        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
-        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
-        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
-        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
-        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
-        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
-        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
-        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
-        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
-    
-    
-        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+        <script src="/vendor/fancybox/jquery.fancybox.pack.js"></script>
     
 
+    
+        <script src="/vendor/scrollLoading/jquery.scrollLoading.js"></script>
+        <script src="/vendor/scrollLoading/main.js"></script>
+    
 
 
 <!-- Custom Scripts -->
