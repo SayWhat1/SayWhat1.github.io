@@ -3,13 +3,18 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>http://derekelliott.me/blog/2018/2/</loc>
+    <lastmod>2018-07-05T11:50:00-04:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://derekelliott.me/blog/2018/1/</loc>
     <lastmod>2018-06-09T11:48:38-04:00</lastmod>
   </url>
   
   <url>
     <loc>http://derekelliott.me/blog/</loc>
-    <lastmod>2018-06-09T11:48:38-04:00</lastmod>
+    <lastmod>2018-07-05T11:50:00-04:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -25,7 +30,7 @@
   
   <url>
     <loc>http://derekelliott.me/</loc>
-    <lastmod>2018-06-09T11:48:38-04:00</lastmod>
+    <lastmod>2018-07-05T11:50:00-04:00</lastmod>
     <priority>0</priority>
   </url>
   

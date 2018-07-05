@@ -6,10 +6,19 @@
     <description>Recent content on This and That</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 09 Jun 2018 11:48:38 -0400</lastBuildDate>
+    <lastBuildDate>Thu, 05 Jul 2018 11:50:00 -0400</lastBuildDate>
     
 	<atom:link href="http://derekelliott.me/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Building a Url Shortner: Part 2</title>
+      <link>http://derekelliott.me/blog/2018/2/</link>
+      <pubDate>Thu, 05 Jul 2018 11:50:00 -0400</pubDate>
+      
+      <guid>http://derekelliott.me/blog/2018/2/</guid>
+      <description>In part two, I&amp;rsquo;ll go over how I built out my service. Most of the effort in building it out, came in writing meaningful tests. It&amp;rsquo;s also the first time I&amp;rsquo;ve build out a webapp in Go that actually used persistence. I ended up using Postgres and Gorm for the database and Redis to cache tokens and URLs. For testing, I like to use Testify and Mockery to generate mocks for testing.</description>
+    </item>
     
     <item>
       <title>Building a URL Shortner</title>

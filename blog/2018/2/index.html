@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="Derek Elliott">
+    <meta name="description" content="Derek Elliott&#39;s Blog">
+    <meta name="keywords" content="blog,developer,data-science">
+
+    <base href="http://derekelliott.me/">
+    <title>
+  Building a Url Shortner: Part 2 · This and That
+</title>
+
+    <link rel="canonical" href="http://derekelliott.me/blog/2018/2/">
+
+    <link  rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:400,700">
+    <link rel="stylesheet" href="//cdn.rawgit.com/necolas/normalize.css/master/normalize.css">
+    <link rel="stylesheet" href="http://derekelliott.me/css/style.min.css">
+
+    
+
+    <link rel="icon" type="image/png" href="http://derekelliott.me/images/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="http://derekelliott.me/images/favicon-16x16.png" sizes="16x16">
+
+    
+
+    <meta name="generator" content="Hugo 0.41" />
+  </head>
+
+  <body>
+    <main class="wrapper">
+      <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="http://derekelliott.me/">
+      This and That
+    </a>
+    
+    <ul class="navigation-list float-right">
+      
+      <li class="navigation-item">
+        <a class="navigation-link" href="http://derekelliott.me/blog/">Blog</a>
+      </li>
+      
+      <li class="navigation-item">
+        <a class="navigation-link" href="http://derekelliott.me/about/">About</a>
+      </li>
+      
+    </ul>
+    
+  </section>
+</nav>
+
+
+      <div class="content">
+        
+  <section class="container page">
+  <article>
+    <header>
+      <h1>Building a Url Shortner: Part 2</h1>
+    </header>
+
+    
+
+<p>In part two, I&rsquo;ll go over how I built out my service.  Most of the effort in  building it out, came in writing meaningful tests.  It&rsquo;s also the first time I&rsquo;ve build out a webapp in Go that actually used persistence.  I ended up using Postgres and <a href="https://github.com/jinzhu/gorm">Gorm</a> for the database and Redis to cache tokens and URLs.   For testing, I like to use <a href="https://github.com/stretchr/testify">Testify</a> and <a href="https://github.com/vektra/mockery">Mockery</a> to generate mocks for testing.</p>
+
+<h3 id="building-the-cli">Building the CLI</h3>
+
+<p>First thing I did was put together a CLI to set the configuration for the service.  I used <a href="https://github.com/spf13/cobra">Cobra</a> and <a href="https://github.com/spf13/viper">Viper</a> for putting together the commands, setting up the config for the database and Redis, and parsing the flags.  The config is stored in a YAML file and looks like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">hostname: localhost:<span style="color:#ae81ff">10000</span>
+port: <span style="color:#ae81ff">10000</span>
+db:
+  user: snip
+  pass: snip
+  name: snip
+  host: localhost
+  port: <span style="color:#ae81ff">5432</span>
+cache:
+  pass: snip
+  host: localhost
+  port: <span style="color:#ae81ff">6379</span></code></pre></div>
+<p>The service needs to know it&rsquo;s hostname, so that it can return the complete shortened URL.  It also takes the port it should start up on.  This should let me easily start up the service in a Docker container and run it where ever I&rsquo;d like.  It also takes in the information for connecting to the database and Redis.</p>
+
+<h3 id="building-the-service">Building the Service</h3>
+
+<p>The first thing I did was set up the routes and the request logging. Those straight forward to set up, so I won&rsquo;t elaborate on them any further.</p>
+
+<p>The first route I set up was the registration route.  Building this out was the first time that I revised my design.  The Redis client takes a <a href="https://golang.org/pkg/time/#Duration">duration</a> and it has a nice parse function that takes a string similar to &ldquo;10m&rdquo; and turn it into a 10 minute duration.  So, I changed the TTL to take in a string formatted like that, instead of just an int.  Also, due to the way redirects work, if you don&rsquo;t use a URL with the scheme, i.e. <a href="https://www.example.com">https://www.example.com</a> vs www.example.com, it won&rsquo;t redirect correctly.  So, there&rsquo;s some URL validation in there that will throw back an error if the URL doesn&rsquo;t have a scheme attached.</p>
+
+<p>The next route I build out was the route to redirect to a URL.  This is the meat and potatoes of the service.  It&rsquo;s also one of the easier ones to implement.  All it requires is to look up the URL in the cache for the token given, and return a redirect.  It also starts a goroutine to increment the stats of the link.  An error in collecting the stats shouldn&rsquo;t break the base functionality of the service, so it doesn&rsquo;t wait for the stats collection to be successful to return.  If there is a problem with the stats collection, it&rsquo;ll log it out, but will still redirect to the URL.</p>
+
+<p>Next came the end points to return the over all stats, and the stats for specific URLs.  Here&rsquo;s another place where my original design changed.  The <code>/stats</code> route was matching the route to forward to the URL first.  I could have fixed it to not match that route, but it made more sense to have those behind an <code>/admin</code> route.  So all the stats reporting are through the <code>/admin/</code> endpoint.  So, hitting <code>/admin/stats</code> will return the over all stats.  This one takes some time, as it iterates thorugh all the URLs registered with the service, and aggregates the number of redirects.  This could also be achieved with a simple query to the database, which is probably a better way to do this.  I was trying to avoid writing actual queries though.  This is probably the first thing that I&rsquo;ll change if I try to keep the service performant at scale. I also modified what is returned when getting the stats for a specific URL.  Instead of just the number of redirects, I return the whole ShortURL object.</p>
+
+<p>The final routes I worked on were the Delete endpoints.  These were straight forward too.  They are pretty much just straight up SQL queries.  Not much that can go wrong with this one.</p>
+
+<p>The next thing I handled was cleaning out the expired routes from the database.  In the cache, the TTL is set when the shorteners are created, so I didn&rsquo;t have to worry about deleting them from there.  To accomplish this, I start up a long running goroutine before starting the service that scans the database every 30 seconds for urls that are expired and delete them.  To do this, I get a list of all the registered tokens, and look them up one at a time.  There&rsquo;s probably a query I could put together to make this a lot faster too, which is another thing that I&rsquo;ll look into if I wanted to start worrying about performance.</p>
+
+<h3 id="testing">Testing</h3>
+
+<p>I went through a few different ideas when putting together the tests.  First, I manually set up a mock database, and Redis structs that I passed in the tests.  This wasn&rsquo;t nearly as detailed as I needed.  Unless I went in and made the mocks much more complex, all I could do was error out of the first database call to test failure states.  This didn&rsquo;t let me test as much as I wanted.  So, I found <a href="https://github.com/vektra/mockery">Mockery</a> to set up <a href="https://github.com/stretchr/testify">Testify</a> mocks.  The trade off here, was that I couldn&rsquo;t use the table driven tests that I like to do, but I was able to test the actual functionality, instead of just the response codes.  There are still a lot more I could test on this, but I got to the point of diminishing returns.  I have over 70% coverage already, and that&rsquo;s good enough for me.</p>
+
+<h3 id="conclusion">Conclusion</h3>
+
+<p>After setting up the DeleteAll endpoint, I realized I should have authentication on the endpoints.  I might implement that and write a little update.  Over all, this took me about 3 days total, including the research I needed to do.  I learned quite a bit on how to set up the database and Redis connections in a webapp written in Go.  You can see the code in full on <a href="https://github.com/derek-elliott/url-shortener">Github</a>.</p>
+
+<hr />
+
+<p><a href="1.md">Part 1</a></p>
+
+<p><a href="2.md">Part 2</a></p>
+
+<p><a href="https://github.com/derek-elliott/url-shortener">See the code on Github</a></p>
+
+  </article>
+</section>
+
+
+      </div>
+
+      <footer class="footer">
+  <section class="container">
+     © 2018    ·  Powered by <a href="https://gohugo.io/">Hugo</a> & <a href="https://github.com/luizdepra/hugo-coder/">Coder</a>. 
+  </section>
+</footer>
+
+    </main>
+
+    
+
+  </body>
+
+</html>
